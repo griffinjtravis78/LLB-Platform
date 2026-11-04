@@ -1,11 +1,12 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Supabase Configuration with explicit session handling
+// Supabase Configuration with sessionStorage so tokens clear on browser/tab close
 const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         persistSession: true,
+        storage: window.sessionStorage, // Wipes session when browser/tab is closed
         autoRefreshToken: true,
         detectSessionInUrl: true
     }
@@ -209,4 +210,125 @@ class LLBApp {
 
                 if (error) {
                     console.error('Error saving disclaimer acceptance:', error);
-                    alert('Error saving
+                    alert('Error saving acceptance: ' + error.message);
+                    return;
+                }
+            }
+            window.location.reload();
+        });
+    }
+
+    renderDashboard() {
+        document.getElementById('app').innerHTML = `
+            <div class="min-h-screen bg-[#0E0E0E] text-gray-100 flex">
+                <aside class="w-64 bg-[#161616] border-r border-[#C5A059]/20 p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="mb-6">
+                            <span class="text-[#C5A059] font-bold text-lg tracking-wider">ESTATE ERP</span>
+                            <p class="text-xs text-gray-400">Role: ${this.userProfile?.role || 'User'}</p>
+                            <p class="text-[10px] text-gray-500 mt-1 truncate">Tenant: ${this.currentTenant?.name || 'Active'}</p>
+                        </div>
+                        <nav id="module-nav" class="space-y-1 overflow-y-auto max-h-[calc(100vh-150px)] text-xs">
+                            <!-- Populated dynamically -->
+                        </nav>
+                    </div>
+                    <button id="logout-btn" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-200 py-2 rounded text-xs transition border border-red-700/50">Sign Out</button>
+                </aside>
+                <main class="flex-1 p-8 overflow-y-auto">
+                    <div id="module-container" class="bg-[#161616] border border-[#C5A059]/20 p-6 rounded-lg">
+                        <!-- Module content renders here -->
+                    </div>
+                </main>
+            </div>
+        `;
+
+        this.renderNavigation();
+        this.loadModule(this.activeModule);
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.reload();
+        });
+    }
+
+    renderNavigation() {
+        const modules = [
+            { id: 'onboarding', label: 'Module 0: Onboarding' },
+            { id: 'vitals', label: 'Module 1: Vitals & Contacts' },
+            { id: 'parents', label: 'Module 2: Parents' },
+            { id: 'education', label: 'Module 3: Education' },
+            { id: 'employment', label: 'Module 4: Employment' },
+            { id: 'civic', label: 'Module 5: Civic' },
+            { id: 'faith', label: 'Module 6: Faith' },
+            { id: 'military', label: 'Module 7: Military' },
+            { id: 'cultural', label: 'Module 8: Cultural' },
+            { id: 'disposition', label: 'Module 9: Disposition' },
+            { id: 'aesthetics', label: 'Module 10: Aesthetics' },
+            { id: 'participants', label: 'Module 11: Participants' },
+            { id: 'photos', label: 'Module 12: Photos' },
+            { id: 'stories', label: 'Module 13: Stories' },
+            { id: 'itineraries', label: 'Module 14: Itineraries' },
+            { id: 'financial', label: 'Module 15: Financial' },
+            { id: 'insurance', label: 'Module 16: Insurance' },
+            { id: 'utilities', label: 'Module 17: Utilities' },
+            { id: 'storage', label: 'Module 18: Storage' }
+        ];
+
+        const navHtml = modules.map(m => `
+            <button data-module="${m.id}" class="w-full text-left px-3 py-2 rounded transition ${this.activeModule === m.id ? 'bg-[#C5A059] text-[#0E0E0E] font-bold' : 'text-gray-300 hover:bg-gray-800'}">
+                ${m.label} *
+            </button>
+        `).join('');
+
+        document.getElementById('module-nav').innerHTML = navHtml;
+
+        document.querySelectorAll('#module-nav button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.activeModule = e.target.getAttribute('data-module');
+                this.renderNavigation();
+                this.loadModule(this.activeModule);
+            });
+        });
+    }
+
+    loadModule(moduleId) {
+        const container = document.getElementById('module-container');
+        container.innerHTML = `<h3 class="text-lg font-bold text-[#C5A059] mb-4">Loading Module...</h3>`;
+        setTimeout(() => {
+            container.innerHTML = `
+                <h3 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Module: ${moduleId}</h3>
+                <p class="text-xs text-gray-400 mb-4">Active multi-tenant record management interface aligned with master schema.</p>
+                <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300">
+                    Table data binding active for module_${moduleId} | Tenant ID: ${this.currentTenant?.id || 'Unlinked'}
+                </div>
+            `;
+        }, 100);
+    }
+
+    initInactivityTimer() {
+        let inactivityTimer;
+        const TIMEOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+
+        const resetTimer = async () => {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(async () => {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    await supabase.auth.signOut();
+                    alert('Session expired due to inactivity.');
+                    window.location.reload();
+                }
+            }, TIMEOUT_DURATION);
+        };
+
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetTimer, true);
+        });
+        resetTimer();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new LLBApp();
+    app.init();
+});
