@@ -2,7 +2,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://wznvgtbastvkjbphaug.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bnZndGJhc3R2a2picGhhdWciLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxOTAyNjAwMCwiZXhwIjoyMDM0NjAyMDAwfQ.placeholder'; // Replace with your active anon key if needed
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bnZndGJhc3R2a2picGhhdWciLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxOTAyNjAwMCwiZXhwIjoyMDM0NjAyMDAwfQ.placeholder';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 class LLBApp {
@@ -15,20 +15,43 @@ class LLBApp {
     }
 
     async init() {
-        const { data: { session } } = await supabase.auth.getSession();
-        this.currentUser = session?.user || null;
+        try {
+            const appElement = document.getElementById('app');
+            if (!appElement) {
+                console.error("Critical: #app element missing from DOM.");
+                return;
+            }
 
-        if (!this.currentUser) {
-            this.renderLogin();
-            return;
-        }
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) throw sessionError;
+            
+            this.currentUser = session?.user || null;
 
-        await this.loadUserProfile();
-        
-        if (!this.userProfile || !this.userProfile.disclaimer_accepted) {
-            this.renderDisclaimerModal();
-        } else {
-            this.renderDashboard();
+            if (!this.currentUser) {
+                this.renderLogin();
+                return;
+            }
+
+            await this.loadUserProfile();
+            
+            if (!this.userProfile || !this.userProfile.disclaimer_accepted) {
+                this.renderDisclaimerModal();
+            } else {
+                this.renderDashboard();
+            }
+        } catch (err) {
+            console.error('Initialization error:', err);
+            const appContainer = document.getElementById('app');
+            if (appContainer) {
+                appContainer.innerHTML = `
+                    <div class="min-h-screen bg-[#0E0E0E] text-red-400 flex items-center justify-center p-6 text-center">
+                        <div class="bg-[#161616] border border-red-900/50 p-6 rounded-lg max-w-md">
+                            <h3 class="font-bold text-sm mb-2 uppercase tracking-widest">Initialization Error</h3>
+                            <p class="text-xs text-gray-300">${err.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
 
@@ -142,7 +165,6 @@ class LLBApp {
         proceedBtn.addEventListener('click', async () => {
             if (!checkbox.checked) return;
             
-            // Update profile disclaimer acceptance in DB if profile exists
             if (this.userProfile?.id) {
                 await supabase.from('profiles').update({ disclaimer_accepted: true }).eq('id', this.userProfile.id);
             }
@@ -216,7 +238,6 @@ class LLBApp {
     loadModule(moduleId) {
         const container = document.getElementById('module-container');
         container.innerHTML = `<h3 class="text-lg font-bold text-[#C5A059] mb-4">Loading Module...</h3>`;
-        // Module forms render here based on selection
         setTimeout(() => {
             container.innerHTML = `
                 <h3 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Module: ${moduleId}</h3>
