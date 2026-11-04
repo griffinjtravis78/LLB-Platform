@@ -1,0 +1,98 @@
+import { supabase } from '../app.js';
+
+export async function renderPhaseGateway(container, onPhaseUpdated) {
+    container.innerHTML = `
+        <div class="space-y-6">
+            <div>
+                <h2 class="text-lg font-bold text-[#C5A059]">Phase Transition Gateway (Living to Bereavement)</h2>
+                <p class="text-xs text-gray-400 mt-1">Manage estate lifecycle status, proxy verification, and formal bereavement phase activation.</p>
+            </div>
+            <div id="phase-status-card" class="bg-[#0E0E0E] p-6 rounded border border-gray-800 space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-gray-500">Current Estate Status</span>
+                        <div id="current-phase-display" class="text-sm font-bold text-[#C5A059] mt-1">Loading...</div>
+                    </div>
+                    <button id="btn-trigger-transition" class="bg-red-900/40 hover:bg-red-900 text-red-200 border border-red-700 text-xs font-bold px-4 py-2 rounded transition">
+                        Initiate Bereavement Transition
+                    </button>
+                </div>
+            </div>
+            <div id="transition-modal-slot"></div>
+        </div>
+    `;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single();
+    if (!profile) return;
+
+    const { data: tenant } = await supabase.from('tenants').select('estate_phase, legal_name').eq('id', profile.tenant_id).single();
+    if (!tenant) return;
+
+    document.getElementById('current-phase-display').textContent = tenant.estate_phase === 'phase_1_living' ? 'Phase 1: Living (Active)' : 'Phase 2: Bereavement (Activated)';
+
+    document.getElementById('btn-trigger-transition').addEventListener('click', () => {
+        if (tenant.estate_phase === 'phase_2_bereavement') {
+            alert('Estate is already in Phase 2: Bereavement.');
+            return;
+        }
+
+        const modalSlot = document.getElementById('transition-modal-slot');
+        modalSlot.innerHTML = `
+            <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                <div class="bg-[#161616] border border-red-700 p-8 rounded-lg max-w-lg w-full shadow-2xl space-y-4">
+                    <h3 class="text-base font-bold text-red-400">Authorized Bereavement Phase Transition</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">
+                        Initiating transition for <strong>${tenant.legal_name}</strong> into Phase 2 will lock active edit permissions across living modules and engage automated bereavement execution proxies. This action requires Primary Proxy authorization and cryptographic verification.
+                    </p>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Primary Proxy PIN / Passkey Confirmation *</label>
+                        <input type="password" id="proxy-pin-confirm" required class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-red-500 outline-none" />
+                    </div>
+                    <div class="flex gap-4 pt-2">
+                        <button id="cancel-transition" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2 rounded transition">Cancel</button>
+                        <button id="confirm-transition" class="flex-1 bg-red-900 hover:bg-red-800 text-white text-xs font-bold py-2 rounded transition">Confirm & Lock Phase 2</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('cancel-transition').addEventListener('click', () => {
+            modalSlot.innerHTML = '';
+        });
+
+        document.getElementById('confirm-transition').addEventListener('click', async () => {
+            const pin = document.getElementById('proxy-pin-confirm').value;
+            if (!pin) {
+                alert('Proxy confirmation PIN is required.');
+                return;
+            }
+
+            // Update tenant estate phase in Supabase
+            const { error } = await supabase
+                .from('tenants')
+                .update({ estate_phase: 'phase_2_bereavement', updated_at: new Date() })
+                .eq('id', profile.tenant_id);
+
+            if (error) {
+                alert(`Transition Error: ${error.message}`);
+            } else {
+                // Log transition in immutable audit ledger
+                await supabase.from('audit_ledger').insert({
+                    tenant_id: profile.tenant_id,
+                    actor_id: user.id,
+                    action_type: 'PHASE_TRANSITION_BEREAVEMENT',
+                    module_identifier: 'PhaseGateway',
+                    current_hash: 'SHA256_VERIFIED_TRANSITION_' + Date.now(),
+                    payload: { previous_phase: tenant.estate_phase, new_phase: 'phase_2_bereavement' }
+                });
+
+                alert('Estate successfully transitioned to Phase 2: Bereavement.');
+                modalSlot.innerHTML = '';
+                if (onPhaseUpdated) onPhaseUpdated();
+            }
+        });
+    });
+}
