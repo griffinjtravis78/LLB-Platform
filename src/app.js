@@ -17,6 +17,7 @@ import { renderModule14 } from './modules/module14.js';
 import { renderModule15 } from './modules/module15.js';
 import { renderModule16 } from './modules/module16.js';
 import { renderModule17 } from './modules/module17.js';
+import { renderModule18 } from './modules/module18.js';
 import { renderAuditLedger } from './components/auditLedger.js';
 import { renderLegalDisclaimerModal } from './components/legalDisclaimer.js';
 import { renderPhaseGateway } from './components/phaseGateway.js';
@@ -100,6 +101,7 @@ class LLBRouter {
                             <button id="nav-mod-15" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 15: Financial Assets *</button>
                             <button id="nav-mod-16" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 16: Insurance & Policies *</button>
                             <button id="nav-mod-17" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 17: Final Wishes *</button>
+                            <button id="nav-mod-18" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 18: Safe Deposit Boxes *</button>
                             
                             <div class="pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Governance</div>
                             <button id="nav-phase" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-red-400 transition font-semibold">Phase Gateway (Bereavement)</button>
@@ -140,6 +142,7 @@ class LLBRouter {
         document.getElementById('nav-mod-15').addEventListener('click', () => renderModule15(document.getElementById('module-container')));
         document.getElementById('nav-mod-16').addEventListener('click', () => renderModule16(document.getElementById('module-container')));
         document.getElementById('nav-mod-17').addEventListener('click', () => renderModule17(document.getElementById('module-container')));
+        document.getElementById('nav-mod-18').addEventListener('click', () => renderModule18(document.getElementById('module-container')));
         document.getElementById('nav-phase').addEventListener('click', () => renderPhaseGateway(document.getElementById('module-container'), () => this.init()));
         document.getElementById('nav-audit').addEventListener('click', () => renderAuditLedger(document.getElementById('module-container')));
     }
