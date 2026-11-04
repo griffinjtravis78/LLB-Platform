@@ -133,4 +133,19 @@ class LLBRouter {
         document.getElementById('nav-mod-06').addEventListener('click', () => renderModule06(document.getElementById('module-container')));
         document.getElementById('nav-mod-07').addEventListener('click', () => renderModule07(document.getElementById('module-container')));
         document.getElementById('nav-mod-08').addEventListener('click', () => renderModule08(document.getElementById('module-container')));
-        document.getElementById('nav-mod-
+        document.getElementById('nav-mod-09').addEventListener('click', () => renderModule09(document.getElementById('module-container')));
+        document.getElementById('nav-mod-10').addEventListener('click', () => renderModule10(document.getElementById('module-container')));
+        document.getElementById('nav-mod-11').addEventListener('click', () => renderModule11(document.getElementById('module-container')));
+        document.getElementById('nav-mod-12').addEventListener('click', () => renderModule12(document.getElementById('module-container')));
+        document.getElementById('nav-mod-13').addEventListener('click', () => renderModule13(document.getElementById('module-container')));
+        document.getElementById('nav-mod-14').addEventListener('click', () => renderModule14(document.getElementById('module-container')));
+        document.getElementById('nav-mod-15').addEventListener('click', () => renderModule15(document.getElementById('module-container')));
+        document.getElementById('nav-mod-16').addEventListener('click', () => renderModule16(document.getElementById('module-container')));
+        document.getElementById('nav-mod-17').addEventListener('click', () => renderModule17(document.getElementById('module-container')));
+        document.getElementById('nav-mod-18').addEventListener('click', () => renderModule18(document.getElementById('module-container')));
+        document.getElementById('nav-phase').addEventListener('click', () => renderPhaseGateway(document.getElementById('module-container'), () => this.init()));
+        document.getElementById('nav-audit').addEventListener('click', () => renderAuditLedger(document.getElementById('module-container')));
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => new LLBRouter());
