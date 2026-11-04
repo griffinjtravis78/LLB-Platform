@@ -6,6 +6,7 @@ import { renderModule03 } from './modules/module03.js';
 import { renderModule04 } from './modules/module04.js';
 import { renderModule05 } from './modules/module05.js';
 import { renderModule06 } from './modules/module06.js';
+import { renderModule07 } from './modules/module07.js';
 import { renderModule09 } from './modules/module09.js';
 import { renderModule15 } from './modules/module15.js';
 import { renderModule16 } from './modules/module16.js';
@@ -81,6 +82,7 @@ class LLBRouter {
                             <button id="nav-mod-04" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 4: Physical Valuables *</button>
                             <button id="nav-mod-05" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 5: Vehicles & Titles *</button>
                             <button id="nav-mod-06" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 6: Intellectual Property *</button>
+                            <button id="nav-mod-07" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 7: Business Interests *</button>
                             <button id="nav-mod-09" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 9: Mortuary Hub *</button>
                             <button id="nav-mod-15" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 15: Financial Assets *</button>
                             <button id="nav-mod-16" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 16: Insurance & Policies *</button>
@@ -113,6 +115,7 @@ class LLBRouter {
         document.getElementById('nav-mod-04').addEventListener('click', () => renderModule04(document.getElementById('module-container')));
         document.getElementById('nav-mod-05').addEventListener('click', () => renderModule05(document.getElementById('module-container')));
         document.getElementById('nav-mod-06').addEventListener('click', () => renderModule06(document.getElementById('module-container')));
+        document.getElementById('nav-mod-07').addEventListener('click', () => renderModule07(document.getElementById('module-container')));
         document.getElementById('nav-mod-09').addEventListener('click', () => renderModule09(document.getElementById('module-container')));
         document.getElementById('nav-mod-15').addEventListener('click', () => renderModule15(document.getElementById('module-container')));
         document.getElementById('nav-mod-16').addEventListener('click', () => renderModule16(document.getElementById('module-container')));
