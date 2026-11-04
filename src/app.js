@@ -1,6 +1,8 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 import { renderModule00 } from './modules/module00.js';
 import { renderModule01 } from './modules/module01.js';
+import { renderModule02 } from './modules/module02.js';
+import { renderModule03 } from './modules/module03.js';
 import { renderModule09 } from './modules/module09.js';
 import { renderModule15 } from './modules/module15.js';
 import { renderModule16 } from './modules/module16.js';
@@ -62,7 +64,7 @@ class LLBRouter {
     renderDashboard(session) {
         document.getElementById('app').innerHTML = `
             <div class="min-h-screen bg-[#0E0E0E] text-white flex">
-                <aside class="w-64 bg-[#161616] border-r border-gray-800 p-4 flex flex-col justify-between">
+                <aside class="w-64 bg-[#161616] border-r border-gray-800 p-4 flex flex-col justify-between overflow-y-auto">
                     <div>
                         <div class="flex items-center gap-2 mb-8 px-2">
                             <div class="w-8 h-8 rounded bg-[#C5A059] flex items-center justify-center font-bold text-[#0E0E0E]">LLB</div>
@@ -71,9 +73,12 @@ class LLBRouter {
                         <nav class="space-y-1 text-sm">
                             <button id="nav-mod-00" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 0: Onboarding *</button>
                             <button id="nav-mod-01" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 1: Vitals & Contacts *</button>
+                            <button id="nav-mod-02" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 2: Real Estate *</button>
+                            <button id="nav-mod-03" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 3: Digital Assets *</button>
                             <button id="nav-mod-09" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 9: Mortuary Hub *</button>
                             <button id="nav-mod-15" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 15: Financial Assets *</button>
                             <button id="nav-mod-16" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 16: Insurance & Policies *</button>
+                            
                             <div class="pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Governance</div>
                             <button id="nav-phase" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-red-400 transition font-semibold">Phase Gateway (Bereavement)</button>
                             <button id="nav-audit" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Audit & Transaction Log</button>
@@ -97,6 +102,8 @@ class LLBRouter {
 
         document.getElementById('nav-mod-00').addEventListener('click', () => renderModule00(document.getElementById('module-container')));
         document.getElementById('nav-mod-01').addEventListener('click', () => renderModule01(document.getElementById('module-container')));
+        document.getElementById('nav-mod-02').addEventListener('click', () => renderModule02(document.getElementById('module-container')));
+        document.getElementById('nav-mod-03').addEventListener('click', () => renderModule03(document.getElementById('module-container')));
         document.getElementById('nav-mod-09').addEventListener('click', () => renderModule09(document.getElementById('module-container')));
         document.getElementById('nav-mod-15').addEventListener('click', () => renderModule15(document.getElementById('module-container')));
         document.getElementById('nav-mod-16').addEventListener('click', () => renderModule16(document.getElementById('module-container')));
