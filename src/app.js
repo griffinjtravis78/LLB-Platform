@@ -1,8 +1,8 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // Supabase Configuration
-const SUPABASE_URL = 'https://wznvgtbastvkjbphaug.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bnZndGJhc3R2a2picGhhdWciLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxOTAyNjAwMCwiZXhwIjoyMDM0NjAyMDAwfQ.placeholder';
+const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 class LLBApp {
