@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+import { renderModule00 } from './modules/module00.js';
 
-// Initialize Supabase Client with your cloud credentials
 const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -11,7 +11,6 @@ class LLBRouter {
     }
 
     async init() {
-        console.log("LLB Platform Initializing...");
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
             this.renderLogin();
@@ -47,7 +46,7 @@ class LLBRouter {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) alert(error.message);
             else window.location.reload();
         });
@@ -63,11 +62,7 @@ class LLBRouter {
                             <span class="font-bold tracking-wider text-[#C5A059]">ESTATE ERP</span>
                         </div>
                         <nav class="space-y-1 text-sm">
-                            <a href="#module-00" class="block px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 0: Onboarding *</a>
-                            <a href="#module-01" class="block px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 1: Vitals & Contacts *</a>
-                            <a href="#module-09" class="block px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 9: Mortuary Hub *</a>
-                            <a href="#module-15" class="block px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 15: Financial Assets *</a>
-                            <a href="#module-16" class="block px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 16: Insurance & Policies *</a>
+                            <button id="nav-mod-00" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 0: Onboarding *</button>
                         </nav>
                     </div>
                     <div class="border-t border-gray-800 pt-4 text-xs text-gray-500">
@@ -85,6 +80,10 @@ class LLBRouter {
                 </main>
             </div>
         `;
+
+        document.getElementById('nav-mod-00').addEventListener('click', () => {
+            renderModule00(document.getElementById('module-container'));
+        });
     }
 }
 
