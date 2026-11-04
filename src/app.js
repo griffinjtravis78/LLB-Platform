@@ -6,7 +6,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         persistSession: true,
-        storage: window.sessionStorage, // Wipes session when browser/tab is closed
+        storage: window.sessionStorage,
         autoRefreshToken: true,
         detectSessionInUrl: true
     }
@@ -140,13 +140,17 @@ class LLBApp {
         `;
 
         let isRegistering = false;
-        document.getElementById('toggle-mode').addEventListener('click', () => {
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleBtn = document.getElementById('toggle-mode');
+        const authForm = document.getElementById('auth-form');
+
+        toggleBtn.addEventListener('click', () => {
             isRegistering = !isRegistering;
-            document.getElementById('submit-btn').textContent = isRegistering ? 'Create Account' : 'Secure Login';
-            document.getElementById('toggle-mode').textContent = isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register here';
+            submitBtn.textContent = isRegistering ? 'Create Account' : 'Secure Login';
+            toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register here';
         });
 
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+        authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -157,12 +161,17 @@ class LLBApp {
                     alert(error.message);
                 } else {
                     alert('Registration successful! You can now log in.');
-                    window.location.reload();
+                    isRegistering = false;
+                    submitBtn.textContent = 'Secure Login';
+                    toggleBtn.textContent = 'Need an account? Register here';
                 }
             } else {
                 const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) alert(error.message);
-                else window.location.reload();
+                if (error) {
+                    alert(error.message);
+                } else {
+                    window.location.reload();
+                }
             }
         });
     }
