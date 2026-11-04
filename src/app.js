@@ -64,8 +64,8 @@ class LLBApp {
                 .single();
 
             if (error || !data) {
-                console.warn('No profile/tenant found for user. Prompting setup.');
-                this.userProfile = { role: 'user' };
+                console.warn('No profile found for user. Initializing default profile state.');
+                this.userProfile = { id: this.currentUser.id, role: 'user', disclaimer_accepted: false };
                 this.currentTenant = null;
             } else {
                 this.userProfile = data;
@@ -165,8 +165,21 @@ class LLBApp {
         proceedBtn.addEventListener('click', async () => {
             if (!checkbox.checked) return;
             
-            if (this.userProfile?.id) {
-                await supabase.from('profiles').update({ disclaimer_accepted: true }).eq('id', this.userProfile.id);
+            if (this.currentUser?.id) {
+                // Upsert profile to ensure new registrations record their disclaimer acceptance
+                const { error } = await supabase
+                    .from('profiles')
+                    .upsert({ 
+                        id: this.currentUser.id, 
+                        disclaimer_accepted: true,
+                        role: 'user'
+                    });
+
+                if (error) {
+                    console.error('Error saving disclaimer acceptance:', error);
+                    alert('Error saving acceptance: ' + error.message);
+                    return;
+                }
             }
             window.location.reload();
         });
