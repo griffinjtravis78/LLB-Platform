@@ -1,9 +1,15 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Supabase Configuration
+// Supabase Configuration with explicit session handling
 const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+    }
+});
 
 class LLBApp {
     constructor() {
@@ -32,7 +38,7 @@ class LLBApp {
                 return;
             }
 
-            await this.loadUserProfile();
+            await this.loadOrCreateUserProfile();
             
             if (!this.userProfile || !this.userProfile.disclaimer_accepted) {
                 this.renderDisclaimerModal();
@@ -55,24 +61,54 @@ class LLBApp {
         }
     }
 
-    async loadUserProfile() {
+    async loadOrCreateUserProfile() {
         try {
-            const { data, error } = await supabase
+            let { data, error } = await supabase
                 .from('profiles')
                 .select('*, tenants(*)')
                 .eq('id', this.currentUser.id)
                 .single();
 
             if (error || !data) {
-                console.warn('No profile found for user. Initializing default profile state.');
-                this.userProfile = { id: this.currentUser.id, role: 'user', disclaimer_accepted: false };
-                this.currentTenant = null;
+                console.log('No profile found. Automatically provisioning profile and tenant...');
+                
+                const { data: tenantData, error: tenantError } = await supabase
+                    .from('tenants')
+                    .insert([{ name: `${this.currentUser.email.split('@')[0]}'s Estate` }])
+                    .select()
+                    .single();
+
+                if (tenantError) {
+                    console.error('Error creating tenant:', tenantError);
+                }
+
+                const tenantId = tenantData ? tenantData.id : null;
+
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .upsert([{ 
+                        id: this.currentUser.id, 
+                        role: 'admin', 
+                        disclaimer_accepted: false,
+                        tenant_id: tenantId
+                    }])
+                    .select('*, tenants(*)')
+                    .single();
+
+                if (profileError) {
+                    console.error('Error creating profile:', profileError);
+                    this.userProfile = { id: this.currentUser.id, role: 'admin', disclaimer_accepted: false };
+                    this.currentTenant = null;
+                } else {
+                    this.userProfile = profileData;
+                    this.currentTenant = profileData.tenants;
+                }
             } else {
                 this.userProfile = data;
                 this.currentTenant = data.tenants;
             }
         } catch (err) {
-            console.error('Error loading user profile:', err);
+            console.error('Error in loadOrCreateUserProfile:', err);
         }
     }
 
@@ -166,126 +202,11 @@ class LLBApp {
             if (!checkbox.checked) return;
             
             if (this.currentUser?.id) {
-                // Upsert profile to ensure new registrations record their disclaimer acceptance
                 const { error } = await supabase
                     .from('profiles')
-                    .upsert({ 
-                        id: this.currentUser.id, 
-                        disclaimer_accepted: true,
-                        role: 'user'
-                    });
+                    .update({ disclaimer_accepted: true })
+                    .eq('id', this.currentUser.id);
 
                 if (error) {
                     console.error('Error saving disclaimer acceptance:', error);
-                    alert('Error saving acceptance: ' + error.message);
-                    return;
-                }
-            }
-            window.location.reload();
-        });
-    }
-
-    renderDashboard() {
-        document.getElementById('app').innerHTML = `
-            <div class="min-h-screen bg-[#0E0E0E] text-gray-100 flex">
-                <aside class="w-64 bg-[#161616] border-r border-[#C5A059]/20 p-4 flex flex-col justify-between">
-                    <div>
-                        <div class="mb-6">
-                            <span class="text-[#C5A059] font-bold text-lg tracking-wider">ESTATE ERP</span>
-                            <p class="text-xs text-gray-400">Role: ${this.userProfile?.role || 'User'}</p>
-                        </div>
-                        <nav id="module-nav" class="space-y-1 overflow-y-auto max-h-[calc(100vh-150px)] text-xs">
-                            <!-- Populated dynamically -->
-                        </nav>
-                    </div>
-                    <button id="logout-btn" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-200 py-2 rounded text-xs transition border border-red-700/50">Sign Out</button>
-                </aside>
-                <main class="flex-1 p-8 overflow-y-auto">
-                    <div id="module-container" class="bg-[#161616] border border-[#C5A059]/20 p-6 rounded-lg">
-                        <!-- Module content renders here -->
-                    </div>
-                </main>
-            </div>
-        `;
-
-        this.renderNavigation();
-        this.loadModule(this.activeModule);
-
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.reload();
-        });
-    }
-
-    renderNavigation() {
-        const modules = [
-            { id: 'onboarding', label: 'Module 0: Onboarding' },
-            { id: 'vitals', label: 'Module 1: Vitals & Contacts' },
-            { id: 'realestate', label: 'Module 2: Real Estate' },
-            { id: 'digital', label: 'Module 3: Digital Assets' },
-            { id: 'valuables', label: 'Module 4: Physical Valuables' },
-            { id: 'vehicles', label: 'Module 5: Vehicles & Titles' },
-            { id: 'ip', label: 'Module 6: Intellectual Property' },
-            { id: 'business', label: 'Module 7: Business Interests' },
-            { id: 'investments', label: 'Module 8: Investments' },
-            { id: 'mortuary', label: 'Module 9: Mortuary Hub' }
-        ];
-
-        const navHtml = modules.map(m => `
-            <button data-module="${m.id}" class="w-full text-left px-3 py-2 rounded transition ${this.activeModule === m.id ? 'bg-[#C5A059] text-[#0E0E0E] font-bold' : 'text-gray-300 hover:bg-gray-800'}">
-                ${m.label} *
-            </button>
-        `).join('');
-
-        document.getElementById('module-nav').innerHTML = navHtml;
-
-        document.querySelectorAll('#module-nav button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.activeModule = e.target.getAttribute('data-module');
-                this.renderNavigation();
-                this.loadModule(this.activeModule);
-            });
-        });
-    }
-
-    loadModule(moduleId) {
-        const container = document.getElementById('module-container');
-        container.innerHTML = `<h3 class="text-lg font-bold text-[#C5A059] mb-4">Loading Module...</h3>`;
-        setTimeout(() => {
-            container.innerHTML = `
-                <h3 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Module: ${moduleId}</h3>
-                <p class="text-xs text-gray-400 mb-4">Active multi-tenant record management interface.</p>
-                <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300">
-                    Module workflow active and bound to tenant ID: ${this.currentTenant?.id || 'Unlinked'}
-                </div>
-            `;
-        }, 100);
-    }
-
-    initInactivityTimer() {
-        let inactivityTimer;
-        const TIMEOUT_DURATION = 15 * 60 * 1000; // 15 minutes
-
-        const resetTimer = async () => {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(async () => {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session) {
-                    await supabase.auth.signOut();
-                    alert('Session expired due to inactivity.');
-                    window.location.reload();
-                }
-            }, TIMEOUT_DURATION);
-        };
-
-        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            window.addEventListener(event, resetTimer, true);
-        });
-        resetTimer();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const app = new LLBApp();
-    app.init();
-});
+                    alert('Error saving
