@@ -1,6 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Supabase Configuration with sessionStorage so tokens clear on browser/tab close
+// Supabase Configuration
 const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -133,7 +133,7 @@ class LLBApp {
                         <button type="submit" id="submit-btn" class="w-full bg-[#C5A059] hover:bg-[#D4AF37] text-[#0E0E0E] font-bold py-2 rounded transition">Secure Login</button>
                     </form>
                     <div class="mt-6 text-center border-t border-gray-800 pt-4">
-                        <button type="button" id="toggle-mode" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Register here</button>
+                        <button type="button" id="toggle-mode" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Register here (Module 0 Onboarding)</button>
                     </div>
                 </div>
             </div>
@@ -147,7 +147,7 @@ class LLBApp {
         toggleBtn.addEventListener('click', () => {
             isRegistering = !isRegistering;
             submitBtn.textContent = isRegistering ? 'Create Account' : 'Secure Login';
-            toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register here';
+            toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register here (Module 0 Onboarding)';
         });
 
         authForm.addEventListener('submit', async (e) => {
@@ -160,10 +160,10 @@ class LLBApp {
                 if (error) {
                     alert(error.message);
                 } else {
-                    alert('Registration successful! You can now log in.');
+                    alert('Module 0 Onboarding: Registration successful! Please log in.');
                     isRegistering = false;
                     submitBtn.textContent = 'Secure Login';
-                    toggleBtn.textContent = 'Need an account? Register here';
+                    toggleBtn.textContent = 'Need an account? Register here (Module 0 Onboarding)';
                 }
             } else {
                 const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -304,13 +304,25 @@ class LLBApp {
         const container = document.getElementById('module-container');
         container.innerHTML = `<h3 class="text-lg font-bold text-[#C5A059] mb-4">Loading Module...</h3>`;
         setTimeout(() => {
-            container.innerHTML = `
-                <h3 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Module: ${moduleId}</h3>
-                <p class="text-xs text-gray-400 mb-4">Active multi-tenant record management interface aligned with master schema.</p>
-                <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300">
-                    Table data binding active for module_${moduleId} | Tenant ID: ${this.currentTenant?.id || 'Unlinked'}
-                </div>
-            `;
+            if (moduleId === 'onboarding') {
+                container.innerHTML = `
+                    <h3 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Module 0: Onboarding & Support Tracks</h3>
+                    <p class="text-xs text-gray-400 mb-4">Manage account registration settings, support tracks, and proxy authentication configurations.</p>
+                    <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300 space-y-2">
+                        <p><strong>Active Tenant ID:</strong> ${this.currentTenant?.id || 'Unlinked'}</p>
+                        <p><strong>Assigned Role:</strong> ${this.userProfile?.role || 'Admin'}</p>
+                        <p><strong>Support Track:</strong> Track A (Primary Estate Management)</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <h3 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Module: ${moduleId}</h3>
+                    <p class="text-xs text-gray-400 mb-4">Active multi-tenant record management interface aligned with master schema.</p>
+                    <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300">
+                        Table data binding active for module_${moduleId} | Tenant ID: ${this.currentTenant?.id || 'Unlinked'}
+                    </div>
+                `;
+            }
         }, 100);
     }
 
