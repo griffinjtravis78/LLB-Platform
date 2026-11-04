@@ -17,8 +17,8 @@ renderLogin() {
                         </div>
                         <button type="submit" id="submit-btn" class="w-full bg-[#C5A059] hover:bg-[#D4AF37] text-[#0E0E0E] font-bold py-2 rounded transition">Secure Login</button>
                     </form>
-                    <div class="mt-4 text-center">
-                        <button id="toggle-mode" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer">Need an account? Register here</button>
+                    <div class="mt-6 text-center border-t border-gray-800 pt-4">
+                        <button type="button" id="toggle-mode" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Register here</button>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@ renderLogin() {
                 if (error) {
                     alert(error.message);
                 } else {
-                    alert('Registration successful! You can now log in or run your profile setup SQL script.');
+                    alert('Registration successful! You can now log in.');
                     window.location.reload();
                 }
             } else {
