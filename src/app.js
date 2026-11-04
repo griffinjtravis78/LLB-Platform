@@ -11,6 +11,7 @@ import { renderModule08 } from './modules/module08.js';
 import { renderModule09 } from './modules/module09.js';
 import { renderModule10 } from './modules/module10.js';
 import { renderModule11 } from './modules/module11.js';
+import { renderModule12 } from './modules/module12.js';
 import { renderModule15 } from './modules/module15.js';
 import { renderModule16 } from './modules/module16.js';
 import { renderAuditLedger } from './components/auditLedger.js';
@@ -90,6 +91,7 @@ class LLBRouter {
                             <button id="nav-mod-09" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 9: Mortuary Hub *</button>
                             <button id="nav-mod-10" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 10: Fiduciaries & POA *</button>
                             <button id="nav-mod-11" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 11: Pet Care *</button>
+                            <button id="nav-mod-12" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 12: Charities *</button>
                             <button id="nav-mod-15" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 15: Financial Assets *</button>
                             <button id="nav-mod-16" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 16: Insurance & Policies *</button>
                             
@@ -126,6 +128,7 @@ class LLBRouter {
         document.getElementById('nav-mod-09').addEventListener('click', () => renderModule09(document.getElementById('module-container')));
         document.getElementById('nav-mod-10').addEventListener('click', () => renderModule10(document.getElementById('module-container')));
         document.getElementById('nav-mod-11').addEventListener('click', () => renderModule11(document.getElementById('module-container')));
+        document.getElementById('nav-mod-12').addEventListener('click', () => renderModule12(document.getElementById('module-container')));
         document.getElementById('nav-mod-15').addEventListener('click', () => renderModule15(document.getElementById('module-container')));
         document.getElementById('nav-mod-16').addEventListener('click', () => renderModule16(document.getElementById('module-container')));
         document.getElementById('nav-phase').addEventListener('click', () => renderPhaseGateway(document.getElementById('module-container'), () => this.init()));
