@@ -5,6 +5,7 @@ import { renderModule09 } from './modules/module09.js';
 import { renderModule15 } from './modules/module15.js';
 import { renderModule16 } from './modules/module16.js';
 import { renderAuditLedger } from './components/auditLedger.js';
+import { renderLegalDisclaimerModal } from './components/legalDisclaimer.js';
 
 const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
@@ -20,7 +21,8 @@ class LLBRouter {
         if (!session) {
             this.renderLogin();
         } else {
-            this.renderDashboard(session);
+            // Require UPL acknowledgment before loading dashboard
+            renderLegalDisclaimerModal(() => this.renderDashboard(session));
         }
     }
 
