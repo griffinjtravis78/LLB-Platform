@@ -1,6 +1,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 import { renderModule00 } from './modules/module00.js';
 import { renderModule01 } from './modules/module01.js';
+import { renderModule09 } from './modules/module09.js';
 
 const SUPABASE_URL = 'https://wznvgtbastvvkjbphauq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Z6SG8qHcHtpI3dp3DTfGJg_XB5buB2P';
@@ -65,6 +66,7 @@ class LLBRouter {
                         <nav class="space-y-1 text-sm">
                             <button id="nav-mod-00" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 0: Onboarding *</button>
                             <button id="nav-mod-01" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 1: Vitals & Contacts *</button>
+                            <button id="nav-mod-09" class="w-full text-left px-3 py-2 rounded hover:bg-[#0E0E0E] text-gray-300 hover:text-[#C5A059] transition">Module 9: Mortuary Hub *</button>
                         </nav>
                     </div>
                     <div class="border-t border-gray-800 pt-4 text-xs text-gray-500">
@@ -89,6 +91,10 @@ class LLBRouter {
 
         document.getElementById('nav-mod-01').addEventListener('click', () => {
             renderModule01(document.getElementById('module-container'));
+        });
+
+        document.getElementById('nav-mod-09').addEventListener('click', () => {
+            renderModule09(document.getElementById('module-container'));
         });
     }
 }
