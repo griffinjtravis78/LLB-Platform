@@ -254,4 +254,92 @@ class LLBApp {
             { id: 'module04', label: 'Module 4: Employment' },
             { id: 'module05', label: 'Module 5: Civic' },
             { id: 'module06', label: 'Module 6: Faith' },
-            { id: 'module07', label: 'Module
+            { id: 'module07', label: 'Module 7: Military' },
+            { id: 'module08', label: 'Module 8: Cultural' },
+            { id: 'module09', label: 'Module 9: Disposition' },
+            { id: 'module10', label: 'Module 10: Aesthetics' },
+            { id: 'module11', label: 'Module 11: Participants' },
+            { id: 'module12', label: 'Module 12: Photos' },
+            { id: 'module13', label: 'Module 13: Stories' },
+            { id: 'module14', label: 'Module 14: Itineraries' },
+            { id: 'module15', label: 'Module 15: Financial' },
+            { id: 'module16', label: 'Module 16: Insurance' },
+            { id: 'module17', label: 'Module 17: Utilities' },
+            { id: 'module18', label: 'Module 18: Storage' }
+        ];
+
+        const navHtml = modules.map(m => `
+            <button data-module="${m.id}" class="w-full text-left px-3 py-2 rounded transition ${this.activeModule === m.id ? 'bg-[#C5A059] text-[#0E0E0E] font-bold' : 'text-gray-300 hover:bg-gray-800'} cursor-pointer">
+                ${m.label}
+            </button>
+        `).join('');
+
+        document.getElementById('module-nav').innerHTML = navHtml;
+
+        document.querySelectorAll('#module-nav button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.activeModule = e.target.getAttribute('data-module');
+                this.renderNavigation();
+                this.loadModule(this.activeModule);
+            });
+        });
+    }
+
+    async loadModule(moduleId) {
+        const container = document.getElementById('module-container');
+        container.innerHTML = `<div class="text-xs text-[#C5A059] font-mono animate-pulse">Loading module component...</div>`;
+        
+        try {
+            const modNum = moduleId.replace('module', '');
+            const mod = await import(`./modules/module${modNum}.js`);
+            
+            if (typeof mod[`renderModule${modNum}`] === 'function') {
+                await mod[`renderModule${modNum}`](container);
+            } else if (typeof mod.render === 'function') {
+                await mod.render(container);
+            } else {
+                throw new Error(`Module render function not found for ${moduleId}`);
+            }
+        } catch (err) {
+            console.error(`Failed to load module ${moduleId}:`, err);
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-[#C5A059] uppercase tracking-wider">${moduleId.toUpperCase()}</h3>
+                    <p class="text-xs text-gray-400">Master schema data binding and module interface.</p>
+                    <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300 space-y-2 font-mono">
+                        <p class="text-amber-400">Note: External module script file pending or path mismatch (${err.message}).</p>
+                        <p><strong>Tenant ID:</strong> ${this.currentTenant?.id || 'Unlinked'}</p>
+                        <p><strong>Active Role:</strong> ${this.userProfile?.role || 'Customer'}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    initInactivityTimer() {
+        let inactivityTimer;
+        const TIMEOUT_DURATION = 15 * 60 * 1000;
+
+        const resetTimer = async () => {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(async () => {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    await supabase.auth.signOut();
+                    alert('Session expired due to inactivity.');
+                    window.location.reload();
+                }
+            }, TIMEOUT_DURATION);
+        };
+
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetTimer, true);
+        });
+        resetTimer();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new LLBApp();
+    app.init();
+});
