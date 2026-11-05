@@ -133,45 +133,94 @@ class LLBApp {
                         <button type="submit" id="submit-btn" class="w-full bg-[#C5A059] hover:bg-[#D4AF37] text-[#0E0E0E] font-bold py-2 rounded transition">Secure Login</button>
                     </form>
                     <div class="mt-6 text-center border-t border-gray-800 pt-4">
-                        <button type="button" id="toggle-mode" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Register here (Module 0 Onboarding)</button>
+                        <button type="button" id="to-register-btn" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Open Module 0 Registration</button>
                     </div>
                 </div>
             </div>
         `;
 
-        let isRegistering = false;
-        const submitBtn = document.getElementById('submit-btn');
-        const toggleBtn = document.getElementById('toggle-mode');
-        const authForm = document.getElementById('auth-form');
-
-        toggleBtn.addEventListener('click', () => {
-            isRegistering = !isRegistering;
-            submitBtn.textContent = isRegistering ? 'Create Account' : 'Secure Login';
-            toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register here (Module 0 Onboarding)';
+        document.getElementById('to-register-btn').addEventListener('click', () => {
+            this.renderModule0Registration();
         });
 
-        authForm.addEventListener('submit', async (e) => {
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            if (isRegistering) {
-                const { error } = await supabase.auth.signUp({ email, password });
-                if (error) {
-                    alert(error.message);
-                } else {
-                    alert('Module 0 Onboarding: Registration successful! Please log in.');
-                    isRegistering = false;
-                    submitBtn.textContent = 'Secure Login';
-                    toggleBtn.textContent = 'Need an account? Register here (Module 0 Onboarding)';
-                }
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert(error.message);
             } else {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) {
-                    alert(error.message);
-                } else {
-                    window.location.reload();
+                window.location.reload();
+            }
+        });
+    }
+
+    renderModule0Registration() {
+        document.getElementById('app').innerHTML = `
+            <div class="min-h-screen bg-[#0E0E0E] flex items-center justify-center p-6">
+                <div class="bg-[#161616] border border-[#C5A059]/30 p-8 rounded-lg max-w-lg w-full shadow-2xl">
+                    <div class="text-center mb-6">
+                        <span class="text-[#C5A059] text-xl font-bold tracking-widest uppercase">Module 0: Onboarding & Registration</span>
+                        <p class="text-gray-400 text-xs mt-1">Configure your estate account and support tracks</p>
+                    </div>
+                    <form id="register-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-[#C5A059] mb-1">Email Address *</label>
+                            <input type="email" id="reg-email" required class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-[#C5A059] outline-none text-xs" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-[#C5A059] mb-1">Password *</label>
+                            <input type="password" id="reg-password" required class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-[#C5A059] outline-none text-xs" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-[#C5A059] mb-1">Support Track Selection *</label>
+                            <select id="support-track" class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-[#C5A059] outline-none text-xs">
+                                <option value="Track_A">Track A - Comprehensive Primary Estate Management</option>
+                                <option value="Track_B">Track B - Accelerated Modular Setup</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-[#C5A059] mb-1">Primary Proxy Contact Name</label>
+                            <input type="text" id="proxy-name" placeholder="Optional initial delegate" class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-[#C5A059] outline-none text-xs" />
+                        </div>
+                        <button type="submit" class="w-full bg-[#C5A059] hover:bg-[#D4AF37] text-[#0E0E0E] font-bold py-2 rounded transition text-xs uppercase tracking-wider">Complete Registration & Initialize Profile</button>
+                    </form>
+                    <div class="mt-6 text-center border-t border-gray-800 pt-4">
+                        <button type="button" id="back-to-login" class="text-xs text-gray-400 hover:text-[#C5A059] bg-transparent border-none cursor-pointer">Already have an account? Sign in</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('back-to-login').addEventListener('click', () => {
+            this.renderLogin();
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const supportTrack = document.getElementById('support-track').value;
+            const proxyName = document.getElementById('proxy-name').value;
+
+            const { data, error } = await supabase.auth.signUp({ 
+                email, 
+                password,
+                options: {
+                    data: {
+                        support_track: supportTrack,
+                        proxy_name: proxyName
+                    }
                 }
+            });
+
+            if (error) {
+                alert(error.message);
+            } else {
+                alert('Module 0 Registration successful! Please log in with your new credentials.');
+                this.renderLogin();
             }
         });
     }
@@ -311,7 +360,7 @@ class LLBApp {
                     <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300 space-y-2">
                         <p><strong>Active Tenant ID:</strong> ${this.currentTenant?.id || 'Unlinked'}</p>
                         <p><strong>Assigned Role:</strong> ${this.userProfile?.role || 'Admin'}</p>
-                        <p><strong>Support Track:</strong> Track A (Primary Estate Management)</p>
+                        <p><strong>Support Track:</strong> Active Onboarding Profile</p>
                     </div>
                 `;
             } else {
