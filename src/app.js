@@ -52,10 +52,10 @@ class LLBApp {
             const appContainer = document.getElementById('app');
             if (appContainer) {
                 appContainer.innerHTML = `
-                    <div class="min-h-screen bg-[#0E0E0E] text-red-400 flex items-center justify-center p-6 text-center">
-                        <div class="bg-[#161616] border border-red-900/50 p-6 rounded-lg max-w-md">
-                            <h3 class="font-bold text-sm mb-2 uppercase tracking-widest">Initialization Error</h3>
-                            <p class="text-xs text-gray-300">${err.message}</p>
+                    <div class="min-h-screen bg-[#2C353D] text-red-300 flex items-center justify-center p-6 text-center">
+                        <div class="bg-[#485664] border border-red-900/50 p-6 rounded-lg max-w-md shadow-xl">
+                            <h3 class="font-bold text-sm mb-2 uppercase tracking-widest text-[#D8C3A5]">Initialization Error</h3>
+                            <p class="text-xs text-gray-200">${err.message}</p>
                         </div>
                     </div>
                 `;
@@ -116,25 +116,25 @@ class LLBApp {
 
     renderLogin() {
         document.getElementById('app').innerHTML = `
-            <div class="min-h-screen bg-[#0E0E0E] flex items-center justify-center p-6">
-                <div class="bg-[#161616] border border-[#C5A059]/30 p-8 rounded-lg max-w-md w-full shadow-2xl">
+            <div class="min-h-screen bg-[#2C353D] flex items-center justify-center p-6">
+                <div class="bg-[#485664] border border-[#D8C3A5]/40 p-8 rounded-lg max-w-md w-full shadow-2xl">
                     <div class="text-center mb-6">
-                        <span class="text-[#C5A059] text-2xl font-bold tracking-widest">LLB ERP</span>
-                        <p class="text-gray-400 text-sm mt-1">Life, Legacy, and Bereavement</p>
+                        <span class="text-[#D8C3A5] text-2xl font-bold tracking-widest">LLB ERP</span>
+                        <p class="text-gray-300 text-sm mt-1">Life, Legacy, and Bereavement</p>
                     </div>
                     <form id="auth-form" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-[#C5A059] mb-1">Email Address *</label>
-                            <input type="email" id="email" required class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-[#C5A059] outline-none text-xs" />
+                            <label class="block text-xs font-semibold uppercase text-[#D8C3A5] mb-1">Email Address *</label>
+                            <input type="email" id="email" required class="w-full bg-[#2C353D] border border-[#6A7B8C] rounded p-2 text-white focus:border-[#D8C3A5] outline-none text-xs" />
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-[#C5A059] mb-1">Password *</label>
-                            <input type="password" id="password" required class="w-full bg-[#0E0E0E] border border-gray-700 rounded p-2 text-white focus:border-[#C5A059] outline-none text-xs" />
+                            <label class="block text-xs font-semibold uppercase text-[#D8C3A5] mb-1">Password *</label>
+                            <input type="password" id="password" required class="w-full bg-[#2C353D] border border-[#6A7B8C] rounded p-2 text-white focus:border-[#D8C3A5] outline-none text-xs" />
                         </div>
-                        <button type="submit" id="submit-btn" class="w-full bg-[#C5A059] hover:bg-[#D4AF37] text-[#0E0E0E] font-bold py-2 rounded transition text-xs uppercase tracking-wider cursor-pointer">Secure Login</button>
+                        <button type="submit" id="submit-btn" class="w-full bg-[#D8C3A5] hover:bg-[#A38E70] text-[#2C353D] font-bold py-2 rounded transition text-xs uppercase tracking-wider cursor-pointer shadow">Secure Login</button>
                     </form>
-                    <div class="mt-6 text-center border-t border-gray-800 pt-4">
-                        <button type="button" id="to-register-btn" class="text-xs text-[#C5A059] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Open Module 0 Registration</button>
+                    <div class="mt-6 text-center border-t border-[#6A7B8C] pt-4">
+                        <button type="button" id="to-register-btn" class="text-xs text-[#D8C3A5] hover:underline bg-transparent border-none cursor-pointer font-semibold">Need an account? Open Module 0 Registration</button>
                     </div>
                 </div>
             </div>
@@ -161,19 +161,19 @@ class LLBApp {
 
     renderDisclaimerModal() {
         document.getElementById('app').innerHTML = `
-            <div class="min-h-screen bg-[#0E0E0E] flex items-center justify-center p-6">
-                <div class="bg-[#161616] border border-[#C5A059]/30 p-8 rounded-lg max-w-lg w-full shadow-2xl">
-                    <h2 class="text-lg font-bold text-[#C5A059] mb-4 uppercase tracking-wider">Legal & UPL Notice</h2>
-                    <div class="text-gray-300 text-xs space-y-3 max-h-60 overflow-y-auto mb-6 p-3 bg-[#0E0E0E] rounded border border-gray-800">
+            <div class="min-h-screen bg-[#2C353D] flex items-center justify-center p-6">
+                <div class="bg-[#485664] border border-[#D8C3A5]/40 p-8 rounded-lg max-w-lg w-full shadow-2xl">
+                    <h2 class="text-lg font-bold text-[#D8C3A5] mb-4 uppercase tracking-wider">Legal & UPL Notice</h2>
+                    <div class="text-gray-200 text-xs space-y-3 max-h-60 overflow-y-auto mb-6 p-3 bg-[#2C353D] rounded border border-[#6A7B8C]">
                         <p><strong>Notice of Operational Scope:</strong> The LLB platform is a secure enterprise estate workflow and operational system developed and operated by Griffin Property and Holdings LLC (Griffin Consulting).</p>
                         <p><strong>Not Legal Representation:</strong> LLB is an administrative tracking tool and workflow organizer. It does not provide formal legal representation, draft binding testamentary instruments without licensed counsel review, or engage in the unauthorized practice of law (UPL).</p>
                         <p>Users are strongly advised to retain licensed legal counsel to validate all estate, trust, and probate execution documents.</p>
                     </div>
                     <label class="flex items-center space-x-3 mb-6 cursor-pointer">
-                        <input type="checkbox" id="accept-disclaimer" class="accent-[#C5A059] w-4 h-4" />
-                        <span class="text-xs text-gray-300">I acknowledge and accept these operational terms *</span>
+                        <input type="checkbox" id="accept-disclaimer" class="accent-[#D8C3A5] w-4 h-4" />
+                        <span class="text-xs text-gray-200">I acknowledge and accept these operational terms *</span>
                     </label>
-                    <button id="proceed-btn" disabled class="w-full bg-gray-700 text-gray-400 font-bold py-2 rounded transition cursor-not-allowed text-xs uppercase tracking-wider">Proceed to Master Dashboard</button>
+                    <button id="proceed-btn" disabled class="w-full bg-[#6A7B8C] text-gray-300 font-bold py-2 rounded transition cursor-not-allowed text-xs uppercase tracking-wider">Proceed to Master Dashboard</button>
                 </div>
             </div>
         `;
@@ -184,10 +184,10 @@ class LLBApp {
         checkbox.addEventListener('change', (e) => {
             if (e.target.checked) {
                 proceedBtn.disabled = false;
-                proceedBtn.className = 'w-full bg-[#C5A059] hover:bg-[#D4AF37] text-[#0E0E0E] font-bold py-2 rounded transition cursor-pointer text-xs uppercase tracking-wider';
+                proceedBtn.className = 'w-full bg-[#D8C3A5] hover:bg-[#A38E70] text-[#2C353D] font-bold py-2 rounded transition cursor-pointer text-xs uppercase tracking-wider shadow';
             } else {
                 proceedBtn.disabled = true;
-                proceedBtn.className = 'w-full bg-gray-700 text-gray-400 font-bold py-2 rounded transition cursor-not-allowed text-xs uppercase tracking-wider';
+                proceedBtn.className = 'w-full bg-[#6A7B8C] text-gray-300 font-bold py-2 rounded transition cursor-not-allowed text-xs uppercase tracking-wider';
             }
         });
 
@@ -212,24 +212,24 @@ class LLBApp {
 
     renderDashboard() {
         document.getElementById('app').innerHTML = `
-            <div class="min-h-screen bg-[#0E0E0E] text-gray-100 flex">
-                <aside class="w-64 bg-[#161616] border-r border-[#C5A059]/20 p-4 flex flex-col justify-between">
+            <div class="min-h-screen bg-[#2C353D] text-gray-100 flex">
+                <aside class="w-64 bg-[#485664] border-r border-[#D8C3A5]/20 p-4 flex flex-col justify-between shadow-lg">
                     <div>
                         <div class="mb-6 flex items-center space-x-3">
-                            <img src="./LLB.jpeg" alt="LLB Logo" class="h-8 w-auto rounded border border-[#C5A059]/30 object-contain">
+                            <img src="./LLB.jpeg" alt="LLB Logo" class="h-8 w-auto rounded border border-[#D8C3A5]/30 object-contain bg-white p-1">
                             <div>
-                                <span class="text-[#C5A059] font-bold text-sm tracking-wider">ESTATE ERP</span>
-                                <p class="text-[10px] text-gray-400">Role: ${this.userProfile?.role || 'Customer'}</p>
+                                <span class="text-[#D8C3A5] font-bold text-sm tracking-wider">ESTATE ERP</span>
+                                <p class="text-[10px] text-gray-300">Role: ${this.userProfile?.role || 'Customer'}</p>
                             </div>
                         </div>
                         <nav id="module-nav" class="space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] text-xs">
                             <!-- Populated dynamically -->
                         </nav>
                     </div>
-                    <button id="logout-btn" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-200 py-2 rounded text-xs transition border border-red-700/50 cursor-pointer">Sign Out</button>
+                    <button id="logout-btn" class="w-full bg-red-900/60 hover:bg-red-900 text-red-100 py-2 rounded text-xs transition border border-red-700/50 cursor-pointer">Sign Out</button>
                 </aside>
                 <main class="flex-1 p-8 overflow-y-auto">
-                    <div id="module-container" class="bg-[#161616] border border-[#C5A059]/20 p-6 rounded-lg min-h-[80vh]">
+                    <div id="module-container" class="bg-[#485664] border border-[#D8C3A5]/30 p-6 rounded-lg min-h-[80vh] shadow-xl">
                         <!-- Module content renders here -->
                     </div>
                 </main>
@@ -269,7 +269,7 @@ class LLBApp {
         ];
 
         const navHtml = modules.map(m => `
-            <button data-module="${m.id}" class="w-full text-left px-3 py-2 rounded transition ${this.activeModule === m.id ? 'bg-[#C5A059] text-[#0E0E0E] font-bold' : 'text-gray-300 hover:bg-gray-800'} cursor-pointer">
+            <button data-module="${m.id}" class="w-full text-left px-3 py-2 rounded transition ${this.activeModule === m.id ? 'bg-[#D8C3A5] text-[#2C353D] font-bold shadow' : 'text-gray-200 hover:bg-[#6A7B8C] hover:text-[#D8C3A5]'} cursor-pointer">
                 ${m.label}
             </button>
         `).join('');
@@ -287,7 +287,7 @@ class LLBApp {
 
     async loadModule(moduleId) {
         const container = document.getElementById('module-container');
-        container.innerHTML = `<div class="text-xs text-[#C5A059] font-mono animate-pulse">Loading module component...</div>`;
+        container.innerHTML = `<div class="text-xs text-[#D8C3A5] font-mono animate-pulse">Loading module component...</div>`;
         
         try {
             const modNum = moduleId.replace('module', '');
@@ -304,10 +304,10 @@ class LLBApp {
             console.error(`Failed to load module ${moduleId}:`, err);
             container.innerHTML = `
                 <div class="space-y-4">
-                    <h3 class="text-lg font-bold text-[#C5A059] uppercase tracking-wider">${moduleId.toUpperCase()}</h3>
-                    <p class="text-xs text-gray-400">Master schema data binding and module interface.</p>
-                    <div class="p-4 bg-[#0E0E0E] rounded border border-gray-800 text-xs text-gray-300 space-y-2 font-mono">
-                        <p class="text-amber-400">Note: External module script file pending or path mismatch (${err.message}).</p>
+                    <h3 class="text-lg font-bold text-[#D8C3A5] uppercase tracking-wider">${moduleId.toUpperCase()}</h3>
+                    <p class="text-xs text-gray-300">Master schema data binding and module interface.</p>
+                    <div class="p-4 bg-[#2C353D] rounded border border-[#6A7B8C] text-xs text-gray-200 space-y-2 font-mono">
+                        <p class="text-amber-300">Note: External module script file pending or path mismatch (${err.message}).</p>
                         <p><strong>Tenant ID:</strong> ${this.currentTenant?.id || 'Unlinked'}</p>
                         <p><strong>Active Role:</strong> ${this.userProfile?.role || 'Customer'}</p>
                     </div>
