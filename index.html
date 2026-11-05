@@ -23,26 +23,24 @@
                             accent: '#D4AF37',
                             dark: '#9A7B38',
                         }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
+                    }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-charcoal text-white">
-    <!-- Header with Logo Integration -->
-    <header class="bg-charcoal-card border-b border-gold/20 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-            <img src="./LLB.jpeg" alt="LLB Life Legacy Bereavement Logo" class="h-10 w-auto object-contain rounded border border-gold/30">
-            <span class="text-gold font-bold text-lg tracking-wider">LLB Platform</span>
+<body style="background-color: #0E0E0E; color: #FFFFFF; font-family: Inter, system-ui, sans-serif; margin: 0; min-height: 100vh;">
+    <!-- Header with Exact Brand Styling -->
+    <header style="background-color: #161616; border-bottom: 1px solid rgba(197, 160, 89, 0.2); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <img src="./LLB.jpeg" alt="LLB Logo" style="height: 2.5rem; width: auto; object-fit: contain; border-radius: 0.25rem; border: 1px solid rgba(197, 160, 89, 0.3);">
+            <span style="color: #C5A059; font-weight: bold; font-size: 1.125rem; letter-spacing: 0.05em;">LLB Platform</span>
         </div>
-        <div class="text-xs text-gray-400">Enterprise Estate ERP</div>
+        <div style="font-size: 0.75rem; color: #9CA3AF;">Enterprise Estate ERP</div>
     </header>
 
-    <div id="app"></div>
+    <!-- Main Container -->
+    <div id="app" style="padding: 2rem;"></div>
 
     <script type="module" src="./src/app.js"></script>
 </body>
