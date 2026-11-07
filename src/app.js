@@ -89,13 +89,14 @@ class LLBApp {
 
     async loadOrCreateUserProfile() {
         try {
-            let { data, error } = await supabase
+            // Decoupled query: fetch profile independently without joins to avoid RLS recursion
+            let { data: profileData, error: profileError } = await supabase
                 .from('profiles')
-                .select('*, tenants(*)')
+                .select('*')
                 .eq('id', this.currentUser.id)
                 .single();
 
-            if (error || !data) {
+            if (profileError || !profileData) {
                 this.userProfile = { 
                     id: this.currentUser.id, 
                     role: 'customer', 
@@ -104,8 +105,18 @@ class LLBApp {
                 };
                 this.currentTenant = null;
             } else {
-                this.userProfile = data;
-                this.currentTenant = data.tenants;
+                this.userProfile = profileData;
+                
+                // Fetch tenant independently using the profile's tenant_id reference
+                if (profileData.tenant_id) {
+                    let { data: tenantData } = await supabase
+                        .from('tenants')
+                        .select('*')
+                        .eq('id', profileData.tenant_id)
+                        .single();
+                    
+                    this.currentTenant = tenantData || null;
+                }
             }
         } catch (err) {
             console.error('Error in loadOrCreateUserProfile:', err);
