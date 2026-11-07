@@ -89,7 +89,6 @@ class LLBApp {
 
     async loadOrCreateUserProfile() {
         try {
-            // Decoupled query: fetch profile independently without joins to avoid RLS recursion
             let { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
@@ -97,17 +96,28 @@ class LLBApp {
                 .single();
 
             if (profileError || !profileData) {
-                this.userProfile = { 
-                    id: this.currentUser.id, 
-                    role: 'customer', 
-                    access_tier: 1, 
-                    disclaimer_accepted: false 
-                };
+                // Self-healing: auto-provision missing profile row
+                const { data: newProfile, error: insertError } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        id: this.currentUser.id,
+                        role: 'customer',
+                        access_tier: 1,
+                        disclaimer_accepted: false
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) {
+                    console.error('Profile auto-provision error:', insertError.message);
+                    this.userProfile = { id: this.currentUser.id, role: 'customer', access_tier: 1, disclaimer_accepted: false };
+                } else {
+                    this.userProfile = newProfile;
+                }
                 this.currentTenant = null;
             } else {
                 this.userProfile = profileData;
                 
-                // Fetch tenant independently using the profile's tenant_id reference
                 if (profileData.tenant_id) {
                     let { data: tenantData } = await supabase
                         .from('tenants')
@@ -214,10 +224,16 @@ class LLBApp {
             if (!checkbox.checked) return;
             
             if (this.currentUser?.id) {
+                // Use upsert to guarantee creation/update even if profile row was missing
                 const { error } = await supabase
                     .from('profiles')
-                    .update({ disclaimer_accepted: true })
-                    .eq('id', this.currentUser.id);
+                    .upsert({
+                        id: this.currentUser.id,
+                        disclaimer_accepted: true,
+                        role: this.userProfile?.role || 'customer',
+                        access_tier: this.userProfile?.access_tier || 1,
+                        tenant_id: this.userProfile?.tenant_id || null
+                    });
 
                 if (error) {
                     alert('Error saving acceptance: ' + error.message);
