@@ -19,7 +19,26 @@ class LLBApp {
         this.currentTenant = null;
         this.userProfile = null;
         this.activeModule = 'module00';
+        this.activeSubLevel = null; // Added for Level 2+ sub-level routing
+        this.openAccordionModule = null; // Enforces exclusive toggle behavior
         this.initInactivityTimer();
+    }
+
+    initInactivityTimer() {
+        let timeout;
+        const resetTimer = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                if (this.currentUser) {
+                    supabase.auth.signOut();
+                    alert("Session expired due to 15 minutes of inactivity.");
+                    window.location.reload();
+                }
+            }, 15 * 60 * 1000);
+        };
+        window.addEventListener('mousemove', resetTimer);
+        window.addEventListener('keypress', resetTimer);
+        resetTimer();
     }
 
     async init() {
@@ -332,29 +351,29 @@ class LLBApp {
     renderDashboard() {
         document.getElementById('app').innerHTML = `
             <div class="text-gray-100 flex min-h-[85vh]">
-                <aside class="w-64 bg-[#485664] border-r border-[#D8C3A5]/20 p-4 flex flex-col justify-between shadow-lg rounded-l-lg">
+                <aside class="w-72 bg-[#485664] border-r border-[#D8C3A5]/20 p-4 flex flex-col justify-between shadow-lg rounded-l-lg">
                     <div>
                         <div class="mb-4 pb-3 border-b border-[#D8C3A5]/20">
                             <span class="text-[#D8C3A5] font-bold text-xs tracking-wider uppercase">Workspace Modules</span>
                             <p class="text-[10px] text-gray-300 mt-0.5">Role: ${this.userProfile?.role || 'Customer'}</p>
                             <p class="text-[10px] text-amber-300 mt-0.5 font-mono">Tier: Level ${this.userProfile?.access_tier || 1}</p>
                         </div>
-                        <nav id="module-nav" class="space-y-1 overflow-y-auto max-h-[calc(100vh-240px)] text-xs">
-                            <!-- Populated dynamically -->
+                        <nav id="module-nav" class="space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)] text-xs">
+                            <!-- Populated dynamically with exclusive accordion items -->
                         </nav>
                     </div>
                     <button id="logout-btn" class="w-full bg-red-900/60 hover:bg-red-900 text-red-100 py-2 rounded text-xs transition border border-red-700/50 cursor-pointer mt-4">Sign Out</button>
                 </aside>
                 <main class="flex-1 p-6 overflow-y-auto bg-[#485664]/40 rounded-r-lg">
                     <div id="module-container" class="bg-[#485664] border border-[#D8C3A5]/30 p-6 rounded-lg min-h-[75vh] shadow-xl">
-                        <!-- Module content renders here -->
+                        <!-- Module Dashboard or Sub-Level Form renders here -->
                     </div>
                 </main>
             </div>
         `;
 
         this.renderNavigation();
-        this.loadModule(this.activeModule);
+        this.loadModule(this.activeModule, this.activeSubLevel);
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await supabase.auth.signOut();
@@ -366,60 +385,184 @@ class LLBApp {
         const userTier = this.userProfile?.access_tier || 1;
 
         const modules = [
-            { id: 'module00', label: 'Module 0: Onboarding', minTier: 1 },
-            { id: 'module01', label: 'Module 1: Vitals & Contacts', minTier: 1 },
-            { id: 'module02', label: 'Module 2: Parents', minTier: 1 },
-            { id: 'module03', label: 'Module 3: Education', minTier: 1 },
-            { id: 'module04', label: 'Module 4: Employment', minTier: 1 },
-            { id: 'module05', label: 'Module 5: Civic', minTier: 1 },
-            { id: 'module06', label: 'Module 6: Faith', minTier: 1 },
-            { id: 'module07', label: 'Module 7: Military', minTier: 2 },
-            { id: 'module08', label: 'Module 8: Cultural', minTier: 2 },
-            { id: 'module09', label: 'Module 9: Disposition', minTier: 2 },
-            { id: 'module10', label: 'Module 10: Aesthetics', minTier: 2 },
-            { id: 'module11', label: 'Module 11: Participants', minTier: 2 },
-            { id: 'module12', label: 'Module 12: Photos', minTier: 3 },
-            { id: 'module13', label: 'Module 13: Stories', minTier: 3 },
-            { id: 'module14', label: 'Module 14: Itineraries', minTier: 3 },
-            { id: 'module15', label: 'Module 15: Financial', minTier: 3 },
-            { id: 'module16', label: 'Module 16: Insurance', minTier: 3 },
-            { id: 'module17', label: 'Module 17: Utilities', minTier: 3 },
-            { id: 'module18', label: 'Module 18: Storage', minTier: 3 }
+            { 
+                id: 'module00', label: 'Module 0: Onboarding', minTier: 1,
+                subLevels: [{ id: '0.1', label: '0.1 Credentials & Profile' }]
+            },
+            { 
+                id: 'module01', label: 'Module 1: Vitals & Contacts', minTier: 1,
+                subLevels: [
+                    { id: '1.1', label: '1.1 Biographical Vitals' },
+                    { id: '1.2', label: '1.2 Professional Counsel' }
+                ]
+            },
+            { 
+                id: 'module02', label: 'Module 2: Parental History', minTier: 1,
+                subLevels: [{ id: '2.1', label: '2.1 Lineage Records' }]
+            },
+            { 
+                id: 'module03', label: 'Module 3: Education', minTier: 1,
+                subLevels: [{ id: '3.1', label: '3.1 Degrees & Institutions' }]
+            },
+            { 
+                id: 'module04', label: 'Module 4: Employment', minTier: 1,
+                subLevels: [{ id: '4.1', label: '4.1 Work History & Pensions' }]
+            },
+            { 
+                id: 'module05', label: 'Module 5: Civic', minTier: 1,
+                subLevels: [{ id: '5.1', label: '5.1 Memberships & Volunteer' }]
+            },
+            { 
+                id: 'module06', label: 'Module 6: Faith', minTier: 1,
+                subLevels: [{ id: '6.1', label: '6.1 Religious Community' }]
+            },
+            { 
+                id: 'module07', label: 'Module 7: Military', minTier: 2,
+                subLevels: [{ id: '7.1', label: '7.1 DD-214 & Honors' }]
+            },
+            { 
+                id: 'module08', label: 'Module 8: Cultural', minTier: 2,
+                subLevels: [{ id: '8.1', label: '8.1 Tribal & Traditional Rites' }]
+            },
+            { 
+                id: 'module09', label: 'Module 9: Disposition', minTier: 2,
+                subLevels: [{ id: '9.1', label: '9.1 Mortuary Contracts' }]
+            },
+            { 
+                id: 'module10', label: 'Module 10: Aesthetics', minTier: 2,
+                subLevels: [{ id: '10.1', label: '10.1 Burial Attire & Floral' }]
+            },
+            { 
+                id: 'module11', label: 'Module 11: Participants', minTier: 2,
+                subLevels: [{ id: '11.1', label: '11.1 Ceremonial Roles' }]
+            },
+            { 
+                id: 'module12', label: 'Module 12: Photos', minTier: 3,
+                subLevels: [{ id: '12.1', label: '12.1 Photo Vault & C2PA' }]
+            },
+            { 
+                id: 'module13', label: 'Module 13: Stories', minTier: 3,
+                subLevels: [{ id: '13.1', label: '13.1 Historical Narratives' }]
+            },
+            { 
+                id: 'module14', label: 'Module 14: Itineraries', minTier: 3,
+                subLevels: [{ id: '14.1', label: '14.1 Service Schedules' }]
+            },
+            { 
+                id: 'module15', label: 'Module 15: Financial Assets', minTier: 3,
+                subLevels: [
+                    { id: '15.1', label: '15.1 Real Estate & Deeds' },
+                    { id: '15.2', label: '15.2 Vehicles & Titles' },
+                    { id: '15.3', label: '15.3 Digital Vaults' },
+                    { id: '15.4', label: '15.4 Physical Valuables' },
+                    { id: '15.5', label: '15.5 Business Entities' },
+                    { id: '15.6', label: '15.6 Investments & Securities' }
+                ]
+            },
+            { 
+                id: 'module16', label: 'Module 16: Insurance', minTier: 3,
+                subLevels: [{ id: '16.1', label: '16.1 Policies & Beneficiaries' }]
+            },
+            { 
+                id: 'module17', label: 'Module 17: Utilities & Pets', minTier: 3,
+                subLevels: [
+                    { id: '17.1', label: '17.1 Utilities & Housing' },
+                    { id: '17.2', label: '17.2 Pet Care Directives' }
+                ]
+            },
+            { 
+                id: 'module18', label: 'Module 18: Storage & Keys', minTier: 3,
+                subLevels: [{ id: '18.1', label: '18.1 Safe Deposit Boxes' }]
+            }
         ];
+
+        // Default open accordion to active module if not set
+        if (!this.openAccordionModule) {
+            this.openAccordionModule = this.activeModule;
+        }
 
         const navHtml = modules.map(m => {
             const isLocked = userTier < m.minTier && userTier < 3;
+            const isOpen = this.openAccordionModule === m.id;
+            const isActiveMain = this.activeModule === m.id && !this.activeSubLevel;
+
             return `
-                <button data-module="${m.id}" ${isLocked ? 'disabled' : ''} class="w-full text-left px-3 py-2 rounded transition ${isLocked ? 'opacity-40 cursor-not-allowed bg-transparent text-gray-500' : this.activeModule === m.id ? 'bg-[#D8C3A5] text-[#2C353D] font-bold shadow' : 'text-gray-200 hover:bg-[#6A7B8C] hover:text-[#D8C3A5]'} cursor-pointer flex justify-between items-center">
-                    <span>${m.label}</span>${isLocked ? '<span class="text-[9px] text-amber-400 font-mono">LOCKED</span>' : ''}
-                </button>
+                <div class="space-y-1">
+                    <button data-module="${m.id}" ${isLocked ? 'disabled' : ''} class="w-full text-left px-3 py-2 rounded transition ${isLocked ? 'opacity-40 cursor-not-allowed bg-transparent text-gray-500' : isActiveMain ? 'bg-[#D8C3A5] text-[#2C353D] font-bold shadow' : 'text-gray-200 hover:bg-[#6A7B8C] hover:text-[#D8C3A5]'} cursor-pointer flex justify-between items-center module-toggle-btn">
+                        <span class="truncate">${m.label}</span>
+                        <div class="flex items-center gap-1">
+                            ${isLocked ? '<span class="text-[9px] text-amber-400 font-mono">LOCKED</span>' : `<span class="text-[10px] transform transition-transform ${isOpen ? 'rotate-90' : ''}">▶</span>`}
+                        </div>
+                    </button>
+                    ${isOpen && !isLocked ? `
+                        <div class="pl-4 space-y-1 border-l-2 border-[#D8C3A5]/30 ml-2 my-1">
+                            <button data-module="${m.id}" data-sublevel="dashboard" class="w-full text-left px-2 py-1.5 rounded text-[11px] ${!this.activeSubLevel && this.activeModule === m.id ? 'bg-[#A38E70] text-white font-bold' : 'text-gray-300 hover:bg-[#6A7B8C]/50 hover:text-white'} sub-level-btn">
+                                📊 Module Dashboard
+                            </button>
+                            ${m.subLevels.map(sub => `
+                                <button data-module="${m.id}" data-sublevel="${sub.id}" class="w-full text-left px-2 py-1.5 rounded text-[11px] ${this.activeSubLevel === sub.id ? 'bg-[#A38E70] text-white font-bold' : 'text-gray-300 hover:bg-[#6A7B8C]/50 hover:text-white'} sub-level-btn">
+                                    ${sub.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
             `;
         }).join('');
 
         const navContainer = document.getElementById('module-nav');
         if (navContainer) {
             navContainer.innerHTML = navHtml;
-            navContainer.querySelectorAll('button:not([disabled])').forEach(btn => {
+
+            // Exclusive Accordion Toggle & Dashboard Main Click
+            navContainer.querySelectorAll('.module-toggle-btn:not([disabled])').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    this.activeModule = e.currentTarget.getAttribute('data-module');
+                    const modId = e.currentTarget.getAttribute('data-module');
+                    if (this.openAccordionModule === modId) {
+                        // If already open, clicking toggles main dashboard view
+                        this.activeModule = modId;
+                        this.activeSubLevel = null;
+                    } else {
+                        // Exclusive toggle: open new, close others
+                        this.openAccordionModule = modId;
+                        this.activeModule = modId;
+                        this.activeSubLevel = null;
+                    }
                     this.renderNavigation();
-                    this.loadModule(this.activeModule);
+                    this.loadModule(this.activeModule, this.activeSubLevel);
+                });
+            });
+
+            // Sub-level and Dashboard routing clicks
+            navContainer.querySelectorAll('.sub-level-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modId = e.currentTarget.getAttribute('data-module');
+                    const subId = e.currentTarget.getAttribute('data-sublevel');
+                    this.activeModule = modId;
+                    this.activeSubLevel = subId === 'dashboard' ? null : subId;
+                    this.renderNavigation();
+                    this.loadModule(this.activeModule, this.activeSubLevel);
                 });
             });
         }
     }
 
-    async loadModule(moduleId) {
+    async loadModule(moduleId, subLevelId) {
         const container = document.getElementById('module-container');
         if (!container) return;
         
-        container.innerHTML = `<div class="text-xs text-[#D8C3A5] font-mono animate-pulse">Loading module component...</div>`;
+        container.innerHTML = `<div class="text-xs text-[#D8C3A5] font-mono animate-pulse">Loading workspace module...</div>`;
         
         try {
             const modNum = moduleId.replace('module', '');
             const mod = await import(`./modules/module${modNum}.js`);
             
-            if (typeof mod[`renderModule${modNum}`] === 'function') { await mod[`renderModule${modNum}`](container);
+            if (!subLevelId && typeof mod.renderDashboard === 'function') {
+                await mod.renderDashboard(container);
+            } else if (subLevelId && typeof mod.renderSubLevel === 'function') {
+                await mod.renderSubLevel(container, subLevelId);
+            } else if (typeof mod[`renderModule${modNum}`] === 'function') {
+                await mod[`renderModule${modNum}`](container);
             } else if (typeof mod.render === 'function') {
                 await mod.render(container);
             } else {
@@ -429,6 +572,18 @@ class LLBApp {
             console.error(`Failed to load module ${moduleId}:`, err);
             container.innerHTML = `
                 <div class="space-y-4">
-                    <h3 class="text-lg font-bold text-[#D8C3A5] uppercase tracking-wider">${moduleId.toUpperCase()}</h3>
-                    <p class="text-xs text-gray-300">Master schema data binding and module interface.</p>
-                    <div class="p-4 bg-[#2C353D] rounded border border-[#6A7B8C] text-xs text-gray-200 space-y-2 font
+                    <h3 class="text-lg font-bold text-[#D8C3A5] uppercase tracking-wider">${moduleId.toUpperCase()} ${subLevelId ? '(' + subLevelId + ')' : ''}</h3>
+                    <p class="text-xs text-gray-300">Master schema data binding and module interface under development.</p>
+                    <div class="p-4 bg-[#2C353D] rounded border border-[#6A7B8C] text-xs text-gray-200">
+                        Error loading component: ${err.message}
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new LLBApp();
+    window.app.init();
+});
