@@ -56,8 +56,19 @@ export async function renderModule00(container) {
         statusEl.textContent = 'Creating Level 0 secure account...';
         statusEl.className = 'text-xs text-[#D8C3A5] text-center mt-4 font-mono';
 
-        // 1. Sign up user in Supabase Auth
-        const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+        // Sign up user and pass user metadata securely to the database trigger
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    city: city,
+                    state: state
+                }
+            }
+        });
         
         if (authError) {
             statusEl.textContent = `Error: ${authError.message}`;
@@ -65,49 +76,7 @@ export async function renderModule00(container) {
             return;
         }
 
-        const user = authData.user;
-        if (!user) {
-            statusEl.textContent = 'Error: Registration session could not be established.';
-            statusEl.className = 'text-xs text-red-300 text-center mt-4 font-mono';
-            return;
-        }
-
-        // 2. Create Tenant record with location details
-        const { data: tenantData, error: tenantError } = await supabase
-            .from('tenants')
-            .insert({ 
-                estate_phase: 'phase_1_living',
-                legal_name: `${firstName} ${lastName}`
-            })
-            .select()
-            .single();
-
-        if (tenantError) {
-            statusEl.textContent = `Tenant error: ${tenantError.message}`;
-            statusEl.className = 'text-xs text-red-300 text-center mt-4 font-mono';
-            return;
-        }
-
-        // 3. Create Profile record linked to Tenant with access_tier = 0
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-                id: user.id,
-                tenant_id: tenantData.id,
-                email: email,
-                full_name: `${firstName} ${lastName}`,
-                role: 'customer',
-                access_tier: 0,
-                disclaimer_accepted: false
-            });
-
-        if (profileError) {
-            statusEl.textContent = `Profile error: ${profileError.message}`;
-            statusEl.className = 'text-xs text-red-300 text-center mt-4 font-mono';
-            return;
-        }
-
-        statusEl.textContent = 'Level 0 Registration complete! Redirecting to secure login...';
+        statusEl.textContent = 'Level 0 Registration complete! Initializing secure workspace...';
         statusEl.className = 'text-xs text-green-300 text-center mt-4 font-mono';
         setTimeout(() => {
             window.location.reload();
