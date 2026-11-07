@@ -9,14 +9,14 @@ module.exports = {
     extend: {
       colors: {
         charcoal: {
-          DEFAULT: '#0E0E0E',
-          card: '#161616',
-          muted: '#1F2937',
+          DEFAULT: '#2C353D',
+          card: '#485664',
+          muted: '#6A7B8C',
         },
         gold: {
-          DEFAULT: '#C5A059',
-          accent: '#D4AF37',
-          dark: '#9A7B38',
+          DEFAULT: '#D8C3A5',
+          accent: '#A38E70',
+          dark: '#8C7757',
         }
       },
       fontFamily: {
