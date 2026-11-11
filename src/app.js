@@ -224,16 +224,10 @@ class LLBApp {
             if (!checkbox.checked) return;
             
             if (this.currentUser?.id) {
-                // Use upsert to guarantee creation/update even if profile row was missing
                 const { error } = await supabase
                     .from('profiles')
-                    .upsert({
-                        id: this.currentUser.id,
-                        disclaimer_accepted: true,
-                        role: this.userProfile?.role || 'customer',
-                        access_tier: this.userProfile?.access_tier || 1,
-                        tenant_id: this.userProfile?.tenant_id || null
-                    });
+                    .update({ disclaimer_accepted: true })
+                    .eq('id', this.currentUser.id);
 
                 if (error) {
                     alert('Error saving acceptance: ' + error.message);
@@ -310,7 +304,12 @@ class LLBApp {
                     <div>
                         <div class="mb-4 pb-3 border-b border-[#D8C3A5]/20">
                             <span class="text-[#D8C3A5] font-bold text-xs tracking-wider uppercase">Workspace Modules</span>
+                            <p class="text-[10px] text-gray-300 mt-0.5">Role: ${this.userProfile?.role || 'Customer'}</p>
+                            <p class="text-[10px] text-amber-300 mt-0.5 font-mono">Tier: Level ${this.userProfile?.access_tier || 1}</p>
                         </div>
+                        <nav id="module-nav" class="space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)] text-xs">
+                            <!-- Populated dynamically -->
+                        </nav>
                     </div>
                     <button id="logout-btn" class="w-full bg-red-900/60 hover:bg-red-900 text-red-100 py-2 rounded text-xs transition border border-red-700/50 cursor-pointer mt-4">Sign Out</button>
                 </aside>
@@ -319,14 +318,52 @@ class LLBApp {
                 </main>
             </div>
         `;
+
+        this.renderNavigation();
+
+        // Load role-based dashboard view by default, or specific module if active
+        if (this.activeModule === 'module00' && !this.activeSubLevel) {
+            import('./components/roleDashboards.js').then(async (mod) => {
+                const container = document.getElementById('module-container');
+                if (typeof mod.renderRoleDashboard === 'function') {
+                    await mod.renderRoleDashboard(container, this.userProfile, this.currentTenant);
+                }
+            });
+        } else {
+            this.loadModule(this.activeModule, this.activeSubLevel);
+        }
+
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await supabase.auth.signOut();
             window.location.reload();
         });
     }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new LLBApp();
-    window.app.init();
-});
+    renderNavigation() {
+        const userTier = this.userProfile?.access_tier || 1;
+
+        const modules = [
+            { id: 'module00', label: 'Module 0: Onboarding', minTier: 1, subLevels: [{ id: '0.1', label: '0.1 Credentials & Profile' }] },
+            { id: 'module01', label: 'Module 1: Vitals & Contacts', minTier: 1, subLevels: [{ id: '1.1', label: '1.1 Biographical Vitals' }, { id: '1.2', label: '1.2 Professional Counsel' }] },
+            { id: 'module02', label: 'Module 2: Parental History', minTier: 1, subLevels: [{ id: '2.1', label: '2.1 Lineage Records' }] },
+            { id: 'module03', label: 'Module 3: Education', minTier: 1, subLevels: [{ id: '3.1', label: '3.1 Degrees & Institutions' }] },
+            { id: 'module04', label: 'Module 4: Employment', minTier: 1, subLevels: [{ id: '4.1', label: '4.1 Work History & Pensions' }] },
+            { id: 'module05', label: 'Module 5: Civic', minTier: 1, subLevels: [{ id: '5.1', label: '5.1 Memberships & Volunteer' }] },
+            { id: 'module06', label: 'Module 6: Faith', minTier: 1, subLevels: [{ id: '6.1', label: '6.1 Religious Community' }] },
+            { id: 'module07', label: 'Module 7: Military', minTier: 2, subLevels: [{ id: '7.1', label: '7.1 DD-214 & Honors' }] },
+            { id: 'module08', label: 'Module 8: Cultural', minTier: 2, subLevels: [{ id: '8.1', label: '8.1 Tribal & Traditional Rites' }] },
+            { id: 'module09', label: 'Module 9: Disposition', minTier: 2, subLevels: [{ id: '9.1', label: '9.1 Mortuary Contracts' }] },
+            { id: 'module10', label: 'Module 10: Aesthetics', minTier: 2, subLevels: [{ id: '10.1', label: '10.1 Burial Attire & Floral' }] },
+            { id: 'module11', label: 'Module 11: Participants', minTier: 2, subLevels: [{ id: '11.1', label: '11.1 Ceremonial Roles' }] },
+            { id: 'module12', label: 'Module 12: Photos', minTier: 3, subLevels: [{ id: '12.1', label: '12.1 Photo Vault & C2PA' }] },
+            { id: 'module13', label: 'Module 13: Stories', minTier: 3, subLevels: [{ id: '13.1', label: '13.1 Historical Narratives' }] },
+            { id: 'module14', label: 'Module 14: Itineraries', minTier: 3, subLevels: [{ id: '14.1', label: '14.1 Service Schedules' }] },
+            { id: 'module15', label: 'Module 15: Financial Assets', minTier: 3, subLevels: [
+                { id: '15.1', label: '15.1 Real Estate & Deeds' },
+                { id: '15.2', label: '15.2 Vehicles & Titles' },
+                { id: '15.3', label: '15.3 Digital Vaults' },
+                { id: '15.4', label: '15.4 Physical Valuables' },
+                { id: '15.5', label: '15.5 Business Entities' },
+                { id: '15.6', label: '15.6 Investments & Securities' }
+            ]},
+            { id: 'module16', label: 'Module 1
